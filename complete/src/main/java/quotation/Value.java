@@ -1,4 +1,4 @@
-package quotations;
+package quotation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

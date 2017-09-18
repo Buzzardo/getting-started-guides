@@ -1,14 +1,14 @@
-package quotations;
+package quotation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Quote {
+public class Quotation {
 
 	private String type;
     private Value value;
 
-    public Quote() {
+    public Quotation() {
     }
 
     public String getType() {

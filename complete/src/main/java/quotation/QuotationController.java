@@ -1,4 +1,4 @@
-package quotations;
+package quotation;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpConnector;
@@ -12,26 +12,21 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-public class QuoteController {
+public class QuotationController {
 
 	WebClient client;
 	ClientRequest request;
 	ClientHttpConnector clientHttpConnector;
 
 	@GetMapping("/randomquotation")
-	Mono<Quote> getQuote() {
+	Mono<Quotation> getQuote() {
 
-		return WebClient.create()
-		.get()
-		.uri("https://gturnquist-quoters.cfapps.io/api/random")
-		.accept(MediaType.APPLICATION_JSON)
-		.retrieve()
-		.bodyToMono(Quote.class);
+		return getQuotation("https://gturnquist-quoters.cfapps.io/api/random");
 	}
 
 
-	@GetMapping("/quotes")
-	Flux<Quote> getQuotes(@RequestParam(name="startQuotation", defaultValue="1", required=false) int startQuotation,
+	@GetMapping("/quotations")
+	Flux<Quotation> getQuotes(@RequestParam(name="startQuotation", defaultValue="1", required=false) int startQuotation,
 						  @RequestParam(name="numQuotations", defaultValue="1", required=false) int numQuotations) {
 
 		if (startQuotation > 12) {
@@ -54,14 +49,9 @@ public class QuoteController {
 
 		String uriString = "https://gturnquist-quoters.cfapps.io/api/" + nextQuotation;
 
-		Mono<Quote> firstMono = WebClient.create()
-				.get()
-				.uri(uriString)
-				.accept(MediaType.APPLICATION_JSON)
-				.retrieve()
-				.bodyToMono(Quote.class);
+		Mono<Quotation> firstMono = getQuotation(uriString);
 
-		Flux<Quote> flux = firstMono.flux();
+		Flux<Quotation> flux = firstMono.flux();
 		
 		if (numQuotations > 1) {
 
@@ -75,17 +65,24 @@ public class QuoteController {
 
 				uriString = "https://gturnquist-quoters.cfapps.io/api/" + nextQuotation;
 
-				Mono<Quote> nextMono = WebClient.create()
-						.get()
-						.uri(uriString)
-						.accept(MediaType.APPLICATION_JSON)
-						.retrieve()
-						.bodyToMono(Quote.class);
+				Mono<Quotation> nextMono = getQuotation(uriString);
 
 				flux = flux.concatWith(nextMono);
 			}
 		}
 
 		return flux;
+	}
+
+	private Mono<Quotation> getQuotation(String uri) {
+
+		Mono<Quotation> mono = WebClient.create()
+				.get()
+				.uri(uri)
+				.accept(MediaType.APPLICATION_JSON)
+				.retrieve()
+				.bodyToMono(Quotation.class);
+
+		return mono;
 	}
 }
